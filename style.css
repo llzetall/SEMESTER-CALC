@@ -425,3 +425,23 @@ Columns:
 
 
 
+
+#btn-works {
+  background: linear-gradient(135deg, #2c2f36, #1a1c22);
+  color: #e6e6e6;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 0 12px rgba(0,0,0,0.6);
+  transition: all 0.25s ease;
+}
+
+#btn-works:hover {
+  background: linear-gradient(135deg, #3a3f4b, #242733);
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 10px rgba(127,66,167,0.5),
+    0 0 24px rgba(127,66,167,0.4);
+}
+
+#btn-works:active {
+  transform: scale(0.97);
+}

@@ -234,3 +234,10 @@ function toggleLanguage() {
 
   calculate();
 }
+
+
+
+
+document.getElementById("btn-works").onclick = () => {
+  window.open("https://wassiti.netlify.app/ai", "_blank");
+};
