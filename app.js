@@ -1,9 +1,22 @@
 const { jsPDF } = window.jspdf;
 
 /* =========================
-   OFFICIAL MODULES
-   ========================= */
-const MODULES = [
+   STATE
+========================= */
+let currentLang = "fr";
+let currentPreset = "default";
+
+/* =========================
+   DOM
+========================= */
+const container = document.getElementById("modules");
+const resultEl = document.getElementById("result");
+const titleInput = document.getElementById("semesterTitle");
+
+/* =========================
+   PRESETS
+========================= */
+const GI_MODULES = [
   { name: "Mathématiques 3", coef: 2, type: "td_exam" },
   { name: "Gestion industrielle", coef: 3, type: "td_exam" },
   { name: "Électronique fondamentale 1", coef: 2, type: "td_exam" },
@@ -17,96 +30,140 @@ const MODULES = [
   { name: "Anglais technique", coef: 1, type: "exam" }
 ];
 
-const container = document.getElementById("modules");
-
 /* =========================
    INIT
-   ========================= */
-window.onload = () => MODULES.forEach(m => addModule(m, true));
+========================= */
+window.onload = () => loadDefault();
+
+/* =========================
+   BUTTONS
+========================= */
+document.getElementById("btn-default").onclick = loadDefault;
+document.getElementById("btn-gi").onclick = loadGI;
 
 document.getElementById("btn-add-custom").onclick = () =>
-  addModule({ name: "", coef: 1, type: "td_exam" }, false);
+  addModule({ name: "", coef: 1, type: "td_exam" });
 
 document.getElementById("btn-calc").onclick = calculate;
 document.getElementById("btn-pdf").onclick = exportPDF;
+document.getElementById("btn-lang").onclick = toggleLanguage;
+
 document.getElementById("btn-insta").onclick = () =>
   window.open("https://www.instagram.com/wassiti_/", "_blank");
 
+document.getElementById("btn-works").onclick = () =>
+  window.open("https://wassiti.netlify.app/ai", "_blank");
+
 /* =========================
-   ADD MODULE
-   ========================= */
-function addModule(m, official) {
+   PRESET LOADERS
+========================= */
+function loadDefault() {
+  currentPreset = "default";
+  container.innerHTML = "";
+
+  for (let i = 0; i < 10; i++) {
+    addModule({ name: "", coef: 1, type: "td_exam" });
+  }
+
+  titleInput.value = currentLang === "ar" ? "السداسي" : "Semester";
+  setActivePreset("default");
+  calculate();
+}
+
+function loadGI() {
+  currentPreset = "gi";
+  container.innerHTML = "";
+
+  GI_MODULES.forEach(m => addModule(m));
+
+  titleInput.value = "L2 Génie Industriel – Semestre 3";
+  setActivePreset("gi");
+  calculate();
+}
+
+/* =========================
+   ACTIVE PRESET UI
+========================= */
+function setActivePreset(type) {
+  document.querySelectorAll(".preset-btn").forEach(b =>
+    b.classList.remove("active")
+  );
+
+  document
+    .getElementById(type === "gi" ? "btn-gi" : "btn-default")
+    .classList.add("active");
+}
+
+/* =========================
+   MODULE CREATION
+========================= */
+function addModule(m) {
   const div = document.createElement("div");
   div.className = "module";
   div.dataset.type = m.type;
 
   div.innerHTML = `
-    <input class="mod-name" value="${m.name}" placeholder="Nom du module">
-    <input class="coef" type="number" min="1" value="${m.coef}">
-
+    <input class="mod-name" value="${m.name || ""}" placeholder="">
+    <input class="coef" type="number" min="1" value="${m.coef || 1}">
     <select class="mode-select">
       <option value="td_exam">TD + Exam</option>
       <option value="exam">Exam</option>
       <option value="tp">TP</option>
     </select>
-
     <div class="inputs"></div>
-    <div class="mod-result">—</div>
+    <div class="mod-result">0.00</div>
     <button class="remove">✖</button>
   `;
 
   container.appendChild(div);
 
-  /* mode selector */
   const select = div.querySelector(".mode-select");
   select.value = m.type;
   select.onchange = () => {
     div.dataset.type = select.value;
     renderInputs(div);
+    calculate();
   };
 
-  /* delete button */
-  if (official) {
-    div.querySelector(".remove").style.opacity = "0";
-  } else {
-    div.querySelector(".remove").onclick = () => div.remove();
-  }
+  div.querySelector(".remove").onclick = () => {
+    div.remove();
+    calculate();
+  };
 
+  updatePlaceholders(div);
   renderInputs(div);
 }
 
 /* =========================
-   INPUTS BY MODE
-   ========================= */
+   INPUTS
+========================= */
 function renderInputs(div) {
   const type = div.dataset.type;
   const inputs = div.querySelector(".inputs");
 
   if (type === "td_exam") {
     inputs.innerHTML = `
-      <input class="td" type="number" placeholder="TD /20">
-      <input class="exam" type="number" placeholder="Exam /20">
+      <input class="td" type="number" min="0" max="20" placeholder="TD /20">
+      <input class="exam" type="number" min="0" max="20" placeholder="Exam /20">
     `;
   } else if (type === "tp") {
-    inputs.innerHTML = `
-      <input class="tp" type="number" placeholder="TP /20">
-    `;
+    inputs.innerHTML = `<input class="tp" type="number" min="0" max="20" placeholder="TP /20">`;
   } else {
-    inputs.innerHTML = `
-      <input class="exam" type="number" placeholder="Exam /20">
-    `;
+    inputs.innerHTML = `<input class="exam" type="number" min="0" max="20" placeholder="Exam /20">`;
   }
+
+  inputs.querySelectorAll("input").forEach(i => (i.oninput = calculate));
 }
 
 /* =========================
-   CALCUL MOYENNE
-   ========================= */
+   CALCULATION (DZ)
+========================= */
 function calculate() {
   let total = 0;
   let coefSum = 0;
 
   document.querySelectorAll(".module").forEach(div => {
-    const coef = +div.querySelector(".coef").value;
+    const coef = +div.querySelector(".coef").value || 0;
     const type = div.dataset.type;
     let note = 0;
 
@@ -120,25 +177,45 @@ function calculate() {
       note = +div.querySelector(".exam")?.value || 0;
     }
 
-    div.querySelector(".mod-result").textContent =
-      note ? note.toFixed(2) : "—";
-
+    div.querySelector(".mod-result").textContent = note.toFixed(2);
     total += note * coef;
     coefSum += coef;
   });
 
-  const moyenne = coefSum ? (total / coefSum).toFixed(2) : "—";
-  document.getElementById("result").textContent =
+  const moyenne = coefSum ? (total / coefSum).toFixed(2) : "0.00";
+  resultEl.textContent =
     (currentLang === "ar" ? "المعدل : " : "Moyenne : ") + moyenne;
 }
 
 /* =========================
-   PDF EXPORT
-   ========================= */
+   LANGUAGE (UI ONLY)
+========================= */
+function toggleLanguage() {
+  currentLang = currentLang === "fr" ? "ar" : "fr";
+  document.body.dir = currentLang === "ar" ? "rtl" : "ltr";
+
+  if (currentPreset === "default") {
+    titleInput.value = currentLang === "ar" ? "السداسي" : "Semester";
+  }
+
+  calculate();
+  document.querySelectorAll(".module").forEach(updatePlaceholders);
+}
+
+function updatePlaceholders(div) {
+  div.querySelector(".mod-name").placeholder =
+    currentLang === "ar" ? "اسم المقياس" : "Module name";
+}
+
+/* =========================
+   PDF EXPORT (FRENCH SAFE)
+========================= */
 function exportPDF() {
   const doc = new jsPDF("p", "mm", "a4");
-  const title = document.getElementById("semesterTitle").value;
-  const moyenneText = document.getElementById("result").textContent;
+
+  /* 🔒 PDF TITLE = USER INPUT (FRENCH ONLY) */
+  let title = titleInput.value || "Semester";
+  title = title.replace(/[\u0600-\u06FF]/g, ""); // remove Arabic safely
 
   let y = 20;
 
@@ -160,23 +237,19 @@ function exportPDF() {
   doc.line(20, y, 190, y);
   y += 8;
 
-  doc.setFont("helvetica", "normal");
-
   document.querySelectorAll(".module").forEach(m => {
     if (y > 265) {
       doc.addPage();
       y = 20;
     }
 
-    const name = m.querySelector(".mod-name").value;
-    const coef = m.querySelector(".coef").value;
-    const note = m.querySelector(".mod-result").textContent;
-
-    doc.text(name, 20, y);
-    doc.text(coef.toString(), 120, y, { align: "center" });
-    doc.text(note, 145, y, { align: "center" });
+    doc.text(m.querySelector(".mod-name").value || "—", 20, y);
+    doc.text(m.querySelector(".coef").value, 120, y, { align: "center" });
+    doc.text(m.querySelector(".mod-result").textContent, 145, y, { align: "center" });
     doc.text(
-      note !== "—" && parseFloat(note) >= 10 ? "Validé" : "Rattrapage",
+      parseFloat(m.querySelector(".mod-result").textContent) >= 10
+        ? "Validé"
+        : "Rattrapage",
       175,
       y,
       { align: "center" }
@@ -185,59 +258,18 @@ function exportPDF() {
     y += 7;
   });
 
-  y += 12;
+  y += 10;
   doc.line(20, y, 190, y);
-
   y += 14;
-  doc.setFont("helvetica", "bold");
+
+  const moyenneValue = resultEl.textContent.split(":")[1] || "0.00";
   doc.setFontSize(15);
-  doc.text(moyenneText, 105, y, { align: "center" });
+  doc.text("Moyenne : " + moyenneValue.trim(), 105, y, { align: "center" });
 
   y += 8;
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(8.5);
+  doc.setFontSize(9);
   doc.setTextColor(150);
   doc.text("Made by Dahmani", 105, y, { align: "center" });
 
   doc.save("moyenne-semestre.pdf");
 }
-
-/* =========================
-   LANGUAGE TOGGLE
-   ========================= */
-let currentLang = "fr";
-
-const translations = {
-  fr: {
-    headers: ["Matière", "Coef", "Mode", "Notes", "Résultat"],
-    moyenne: "Moyenne : "
-  },
-  ar: {
-    headers: ["المادة", "المعامل", "النمط", "العلامات", "النتيجة"],
-    moyenne: "المعدل : "
-  }
-};
-
-document.getElementById("btn-lang").onclick = toggleLanguage;
-
-function toggleLanguage() {
-  currentLang = currentLang === "fr" ? "ar" : "fr";
-
-  document.getElementById("btn-lang").textContent =
-    currentLang === "fr" ? "🇩🇿 AR" : "🇫🇷 FR";
-
-  document.querySelectorAll(".modules-header span").forEach((el, i) => {
-    el.textContent = translations[currentLang].headers[i];
-  });
-
-  document.body.dir = currentLang === "ar" ? "rtl" : "ltr";
-
-  calculate();
-}
-
-
-
-
-document.getElementById("btn-works").onclick = () => {
-  window.open("https://wassiti.netlify.app/ai", "_blank");
-};
