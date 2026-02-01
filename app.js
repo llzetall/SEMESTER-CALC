@@ -24,7 +24,7 @@ document.getElementById("btn-add-custom").onclick = () =>
 document.getElementById("btn-calc").onclick = calculate;
 document.getElementById("btn-pdf").onclick = exportPDF;
 document.getElementById("btn-insta").onclick = () =>
-  window.open("https://www.instagram.com/YOUR_USERNAME", "_blank");
+  window.open("https://www.instagram.com/wassiti_/", "_blank");
 
 // ===== ADD MODULE =====
 function addModule(m, official) {
