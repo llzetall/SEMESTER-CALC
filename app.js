@@ -61,14 +61,28 @@ function loadDefault() {
   currentPreset = "default";
   container.innerHTML = "";
 
-  for (let i = 0; i < 10; i++) {
+  // 6 TD + Exam
+  for (let i = 0; i < 6; i++) {
     addModule({ name: "", coef: 1, type: "td_exam" });
   }
 
+  // 2 Exam
+  for (let i = 0; i < 2; i++) {
+    addModule({ name: "", coef: 1, type: "exam" });
+  }
+
+  // 2 TP
+  for (let i = 0; i < 2; i++) {
+    addModule({ name: "", coef: 1, type: "tp" });
+  }
+
+  // Title
   titleInput.value = currentLang === "ar" ? "السداسي" : "Semester";
+
   setActivePreset("default");
   calculate();
 }
+
 
 function loadGI() {
   currentPreset = "gi";
