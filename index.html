@@ -2,53 +2,77 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Calcul Moyenne Semestre</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Semester Calculator</title>
   <link rel="stylesheet" href="style.css" />
 
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <!-- AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
+
 <body>
+  <div class="container">
+    <input id="semesterTitle" value="Semester" />
 
-<div class="container">
+    <div class="actions">
+      <button id="btn-default" class="btn btn-default preset-btn">🔄 Default</button>
 
-  <input id="semesterTitle" value="L2 Génie Industriel – Semestre 3" />
+      <!-- GI dropdown -->
+      <div class="dropdown">
+        <button id="btn-gi" class="btn btn-gi preset-btn">👷 GI</button>
+        <div id="gi-menu" class="dropdown-menu hidden"></div>
+      </div>
 
-  <div class="actions">
-    <button id="btn-default" class="btn btn-default">🔄 Default</button>
-    <button id="btn-gi" class="btn btn-gi">👷 GI</button>
-    <button id="btn-add-custom">➕ Module personnalisé</button>
-    <button id="btn-calc">📊 Calculer</button>
-    <button id="btn-pdf">📄 PDF</button>
-    <button id="btn-lang">🇩🇿 AR</button>
-    <button id="btn-insta">📸 Instagram</button>
-    <button id="btn-works"> ✨ Other Works</button>
+      <button id="btn-specialties" class="btn btn-specialties">🎓 Specialties</button>
 
+      <button id="btn-add-custom" class="btn btn-add">➕ Module personnalisé</button>
+
+      <button id="btn-pdf" class="btn btn-pdf">📄 PDF</button>
+
+      <button id="btn-lang" class="btn btn-lang">🌍 FR</button>
+
+      <button id="btn-insta" class="btn btn-insta">📸 Instagram</button>
+      <button id="btn-works" class="btn btn-works">✨ Other Works</button>
+    </div>
+
+    <div class="modules-header">
+      <span id="h-matiere">Matière</span>
+      <span id="h-coef">Coef</span>
+      <span id="h-mode">Mode</span>
+      <span id="h-notes">Notes & Coefficients</span>
+      <span id="h-result">Résultat</span>
+      <span></span>
+    </div>
+
+    <div id="modules"></div>
+
+    <h2 id="result">Moyenne : —</h2>
+
+    <div class="credit">
+      Made with 💜 by <span>Dahmani</span>
+    </div>
   </div>
 
-  <div class="modules-header">
-    <span>Matière</span>
-    <span>Coef</span>
-    <span>Mode</span>
-    <span>Notes</span>
-    <span>Résultat</span>
-    <span></span>
+  <!-- SPECIALTIES MODAL -->
+  <div id="spec-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="spec-title">Specialties</h3>
+        <button id="spec-close" class="icon-btn">✕</button>
+      </div>
+
+      <input id="spec-search" class="modal-search" placeholder="Search specialty..." />
+
+      <div id="spec-list" class="modal-list"></div>
+
+      <div id="spec-empty" class="modal-empty hidden">
+        Specialty not added yet
+      </div>
+    </div>
   </div>
 
-  <div id="modules"></div>
-
-  <h2 id="result">Moyenne : —</h2>
-
-  <div class="credit">
-    Made with 💜 by <span>Dahmani</span>
-  </div>
-
-</div>
-
-<script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
+
