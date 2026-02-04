@@ -22,7 +22,32 @@ export const GI = {
       ]
     },
 
-    s4: { title: "L2 Génie Industriel — Semestre 4", modules: [] },
+    s4: {
+  title: "L2 Génie Industriel — Semestre 4",
+  modules: [
+    // UE Fondamentale
+    { name: "Mécanique", coef: 3, mode: "td_exam" }, // 40% CC / 60% Exam
+    { name: "Logique combinatoire et séquentielle", coef: 2, mode: "td_exam" }, // CC shown + Exam column (kept td_exam)
+
+    // UE Fondamentale
+    { name: "Méthodes numériques", coef: 2, mode: "td_exam" }, // 40/60
+    { name: "Recherche opérationnelle", coef: 2, mode: "td_exam" }, // 40/60
+
+    // UE Méthodologique
+    { name: "Management de projet", coef: 2, mode: "td_exam" }, // 40/60
+    { name: "TP Logique combinatoire et séquentielle", coef: 1, mode: "tp" }, // 100% CC
+    { name: "TP Recherche opérationnelle", coef: 1, mode: "tp" }, // 100% CC
+    { name: "TP Méthodes numériques", coef: 1, mode: "tp" }, // 100% CC
+
+    // UE Découverte
+    { name: "Économie de l’entreprise", coef: 1, mode: "exam" }, // 100% Exam
+    { name: "Droit de l’entreprise", coef: 1, mode: "exam" }, // 100% Exam
+
+    // UE Transversale
+    { name: "Techniques d’expression, d’information et de communication", coef: 1, mode: "exam" } // 100% Exam
+  ]
+},
+
     s5: { title: "L3 Génie Industriel — Semestre 5", modules: [] },
     s6: { title: "L3 Génie Industriel — Semestre 6", modules: [] }
   }
