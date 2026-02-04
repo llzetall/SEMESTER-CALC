@@ -3,7 +3,10 @@ export const DEFAULTS = {
   titleEN: "Semester",
   titleAR: "السداسي",
   rows: [
-    { name: "", coef: 1, mode: "td_exam" },
+    // FIRST ROW: TD + TP + Exam
+    { name: "", coef: 1, mode: "td_tp_exam" },
+
+    // Others unchanged
     { name: "", coef: 1, mode: "td_exam" },
     { name: "", coef: 1, mode: "td_exam" },
     { name: "", coef: 1, mode: "td_exam" },

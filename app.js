@@ -8,8 +8,8 @@ const { jsPDF } = window.jspdf;
    STATE
 ========================= */
 let lang = "fr";
-let currentPreset = "default";     // "default" | "gi" | specialty id
-let currentSemesterKey = null;     // e.g. "s3"
+let currentPreset = "default";
+let currentSemesterKey = null;
 let lastAvg = 0;
 
 /* =========================
@@ -18,7 +18,7 @@ let lastAvg = 0;
 const STORAGE_KEY = "semester_calc_state_v1";
 
 /* =========================
-   I18N (UI)
+   I18N
 ========================= */
 const T = {
   fr: {
@@ -148,12 +148,10 @@ let specView = { mode: "list", selected: null };
 initGIMenu();
 wireEvents();
 
-// restore localStorage if exists
 const restored = restoreState();
 applyLanguageUI();
 
 if (!restored) {
-  // Default first (until user chooses)
   loadDefault();
 } else {
   calculateLive();
@@ -215,11 +213,11 @@ function wireEvents() {
 }
 
 /* =========================
-   GI MENU (S1-S6)
+   GI MENU
 ========================= */
 function initGIMenu() {
   giMenu.innerHTML = "";
-  const keys = Object.keys(GI.semesters); // s1..s6
+  const keys = Object.keys(GI.semesters);
   keys.forEach(k => {
     const item = document.createElement("div");
     item.className = "dropdown-item";
@@ -251,7 +249,6 @@ function renderSpecialtiesList() {
   const q = specSearch.value.trim().toLowerCase();
   specList.innerHTML = "";
 
-  // Semesters screen
   if (specView.mode === "semesters" && specView.selected) {
     const back = document.createElement("div");
     back.className = "modal-item";
@@ -285,7 +282,6 @@ function renderSpecialtiesList() {
     return;
   }
 
-  // Normal specialties list
   const list = SPECIALTIES.filter(s => s.name.toLowerCase().includes(q));
 
   if (list.length === 0) {
@@ -377,6 +373,7 @@ function addModuleRow(m) {
     <input class="coef" type="number" min="1" value="${m.coef ?? 1}">
     <select class="mode-select">
       <option value="td_exam">TD + Exam</option>
+      <option value="td_tp_exam">TD + TP + Exam</option>
       <option value="exam">Exam</option>
       <option value="tp">TP</option>
     </select>
@@ -418,13 +415,31 @@ function renderInputs(row) {
   const mode = row.dataset.mode;
   const inputs = row.querySelector(".inputs");
 
-  // max=100 but not shown (placeholder stays /20)
+  // max=100 but placeholder remains /20
   if (mode === "td_exam") {
     inputs.innerHTML = `
       <div class="line">
         <input class="td" type="number" min="0" max="100" inputmode="decimal" placeholder="">
         <span class="mul">×</span>
         <input class="tdW weight" type="number" step="0.01" value="0.4" placeholder="0.4">
+      </div>
+      <div class="line">
+        <input class="exam" type="number" min="0" max="100" inputmode="decimal" placeholder="">
+        <span class="mul">×</span>
+        <input class="examW weight" type="number" step="0.01" value="0.6" placeholder="0.6">
+      </div>
+    `;
+  } else if (mode === "td_tp_exam") {
+    inputs.innerHTML = `
+      <div class="line">
+        <input class="td" type="number" min="0" max="100" inputmode="decimal" placeholder="">
+        <span class="mul">×</span>
+        <input class="tdW weight" type="number" step="0.01" value="0.2" placeholder="0.2">
+      </div>
+      <div class="line">
+        <input class="tp" type="number" min="0" max="100" inputmode="decimal" placeholder="">
+        <span class="mul">×</span>
+        <input class="tpW weight" type="number" step="0.01" value="0.2" placeholder="0.2">
       </div>
       <div class="line">
         <input class="exam" type="number" min="0" max="100" inputmode="decimal" placeholder="">
@@ -490,10 +505,23 @@ function calculateLive() {
       const tdW = +row.querySelector(".tdW")?.value || 0;
       const exW = +row.querySelector(".examW")?.value || 0;
       note = td * tdW + ex * exW;
+
+    } else if (mode === "td_tp_exam") {
+      const td = +row.querySelector(".td")?.value || 0;
+      const tp = +row.querySelector(".tp")?.value || 0;
+      const ex = +row.querySelector(".exam")?.value || 0;
+
+      const tdW = +row.querySelector(".tdW")?.value || 0;
+      const tpW = +row.querySelector(".tpW")?.value || 0;
+      const exW = +row.querySelector(".examW")?.value || 0;
+
+      note = td * tdW + tp * tpW + ex * exW;
+
     } else if (mode === "tp") {
       const tp = +row.querySelector(".tp")?.value || 0;
       const tpW = +row.querySelector(".tpW")?.value || 1;
       note = tp * tpW;
+
     } else {
       const ex = +row.querySelector(".exam")?.value || 0;
       const exW = +row.querySelector(".examW")?.value || 1;
@@ -528,7 +556,7 @@ function saveState() {
       tp: +row.querySelector(".tp")?.value || 0,
       tdW: +row.querySelector(".tdW")?.value || 0,
       examW: +row.querySelector(".examW")?.value || 0,
-      tpW: +row.querySelector(".tpW")?.value || 1
+      tpW: +row.querySelector(".tpW")?.value || 0
     };
   });
 
@@ -576,9 +604,20 @@ function restoreState() {
         lastRow.querySelector(".exam").value = r.exam ?? 0;
         lastRow.querySelector(".tdW").value = r.tdW ?? 0.4;
         lastRow.querySelector(".examW").value = r.examW ?? 0.6;
+
+      } else if (r.mode === "td_tp_exam") {
+        lastRow.querySelector(".td").value = r.td ?? 0;
+        lastRow.querySelector(".tp").value = r.tp ?? 0;
+        lastRow.querySelector(".exam").value = r.exam ?? 0;
+
+        lastRow.querySelector(".tdW").value = r.tdW ?? 0.2;
+        lastRow.querySelector(".tpW").value = r.tpW ?? 0.2;
+        lastRow.querySelector(".examW").value = r.examW ?? 0.6;
+
       } else if (r.mode === "tp") {
         lastRow.querySelector(".tp").value = r.tp ?? 0;
         lastRow.querySelector(".tpW").value = r.tpW ?? 1;
+
       } else {
         lastRow.querySelector(".exam").value = r.exam ?? 0;
         lastRow.querySelector(".examW").value = r.examW ?? 1;

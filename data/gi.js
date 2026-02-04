@@ -9,7 +9,7 @@ export const GI = {
       title: "L2 Génie Industriel — Semestre 3",
       modules: [
         { name: "Mathématiques 3", coef: 2, mode: "td_exam" },
-        { name: "Gestion industrielle", coef: 3, mode: "td_exam" },
+        { name: "Gestion industrielle", coef: 3, mode: "td_tp_exam" },
         { name: "Électronique fondamentale 1", coef: 2, mode: "td_exam" },
         { name: "Électrotechnique fondamentale 1", coef: 2, mode: "td_exam" },
         { name: "Probabilités et statistiques", coef: 2, mode: "td_exam" },
@@ -26,7 +26,7 @@ export const GI = {
   title: "L2 Génie Industriel — Semestre 4",
   modules: [
     // UE Fondamentale
-    { name: "Mécanique", coef: 3, mode: "td_exam" }, // 40% CC / 60% Exam
+    { name: "Mécanique", coef: 3, mode: "td_tp_exam" }, // 40% CC / 60% Exam
     { name: "Logique combinatoire et séquentielle", coef: 2, mode: "td_exam" }, // CC shown + Exam column (kept td_exam)
 
     // UE Fondamentale
